@@ -21,8 +21,8 @@ var builder = new WebHostBuilder()
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
-                        socketAction.Connect(context.WebSockets);
                         await Task.Run(() => {
+                            socketAction.Connect(context.WebSockets);
                             while (true)
                             {
                             }

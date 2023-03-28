@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlappyBallsServer", "Flappy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketLibrary", "SocketLibrary\SocketLibrary.csproj", "{D48CE03D-D3D1-40F2-B0C4-C522A4FFDD0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMapper", "DataMapper\DataMapper.csproj", "{6D50D33E-DD31-40D2-B90C-1607D653C050}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D48CE03D-D3D1-40F2-B0C4-C522A4FFDD0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D48CE03D-D3D1-40F2-B0C4-C522A4FFDD0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D48CE03D-D3D1-40F2-B0C4-C522A4FFDD0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D50D33E-DD31-40D2-B90C-1607D653C050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D50D33E-DD31-40D2-B90C-1607D653C050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D50D33E-DD31-40D2-B90C-1607D653C050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D50D33E-DD31-40D2-B90C-1607D653C050}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
