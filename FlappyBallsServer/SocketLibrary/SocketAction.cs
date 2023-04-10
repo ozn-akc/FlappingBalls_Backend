@@ -1,6 +1,10 @@
 using System.Net.WebSockets;
 using System.Text;
+using DataMapper;
+using DataMapper.model;
 using Microsoft.AspNetCore.Http;
+
+using static DataMapper.MetadataMapper;
 
 namespace SocketLibrary;
 
@@ -30,5 +34,13 @@ public class SocketAction
             game.AddPlayer(player);
             _games.Add(game);
         }
+    }
+
+    public static async Task Send(WebSocket socket, Metadata metadata)
+    {
+        await socket.SendAsync(EncodeJson(DataToJson(metadata)),
+            WebSocketMessageType.Text, 
+            true,
+            CancellationToken.None);
     }
 }
