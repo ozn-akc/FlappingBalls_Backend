@@ -1,5 +1,3 @@
-namespace DataMapper.model;
-
 public class Metadata
 {
     public Metadata(RequestType requestType, string from, object value)
@@ -9,9 +7,9 @@ public class Metadata
         Value = value;
     }
 
-    public RequestType RequestType { get; set; }
+    public RequestType RequestType { get; }
     
-    public string From { get; set; }
+    public string From { get; }
 
-    public object Value { get; set; }
+    public object Value { get; }
 }

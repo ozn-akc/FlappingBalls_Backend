@@ -1,10 +1,11 @@
-namespace DataMapper.model;
-
 public enum RequestType
 {
     Pipes,
+    Name,
+    NameSet,
     JumpPlayer,
     JumpOther,
     DeathPlayer,
-    DeathOther
+    DeathOther,
+    AllPlayerData
 }

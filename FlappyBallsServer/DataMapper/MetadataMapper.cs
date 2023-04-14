@@ -1,9 +1,5 @@
 using System.Text;
-using System.Text.Json;
-using DataMapper.model;
 using Newtonsoft.Json;
-
-namespace DataMapper;
 
 public class MetadataMapper
 {
@@ -20,6 +16,11 @@ public class MetadataMapper
     public static string DataToJson(object data)
     {
         return JsonConvert.SerializeObject(data);
+    }
+    
+    public static object JsonToData(String requestData)
+    {
+        return JsonConvert.DeserializeObject(requestData)!;
     }
 
     public static byte[] EncodeJson(string json)
