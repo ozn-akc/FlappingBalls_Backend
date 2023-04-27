@@ -6,7 +6,7 @@ public class RequestHandler
 {
     public static void HandleData(Game game, Player player, string data)
     {
-        Metadata metadata = JsonToMetadata(data);
+        var metadata = JsonToMetadata(data);
         switch (metadata.RequestType)
         {
             case RequestType.Pipes:
@@ -53,6 +53,16 @@ public class RequestHandler
                                 ).ToList()
                         )
                     );
+                break;
+            case RequestType.Score:
+                player.IncreaseScore();
+                game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
+                break;
+            case RequestType.Highscore:
+                foreach (var scores in game.GetPlayers)
+                {
+                    game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
+                }
                 break;
         }
     }

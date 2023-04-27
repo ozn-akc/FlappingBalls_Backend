@@ -14,6 +14,9 @@ public class Player
     public string Name { get; set; }
     public double Height { get; set; }
     public DateTime Playtime { get; set; }
+    public int Score { get; private set; }
+    public int IncreaseScore() => Score += 1;
+    
     
     [JsonIgnore]
     public WebSocket Websocket { get; }

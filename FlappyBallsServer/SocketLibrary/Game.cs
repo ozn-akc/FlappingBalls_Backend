@@ -69,6 +69,17 @@ public class Game
         }
     }
 
+    public async Task SendAllButPlayer(Player original, Metadata data)
+    {
+        foreach (var player in _playerConnections)
+        {
+            if (player.Websocket.State == WebSocketState.Open && player.Name != original.Name)
+            {
+                await Send(player.Websocket, data);
+            }
+        }
+    }
+
     public async Task Send(WebSocket socket, Metadata metadata)
     {
         await socket.SendAsync(EncodeJson(MetadataToJson(metadata)),

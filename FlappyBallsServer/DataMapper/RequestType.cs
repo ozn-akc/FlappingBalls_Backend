@@ -7,5 +7,7 @@ public enum RequestType
     JumpOther,
     DeathPlayer,
     DeathOther,
-    AllPlayerData
+    AllPlayerData,
+    Score,
+    Highscore
 }
