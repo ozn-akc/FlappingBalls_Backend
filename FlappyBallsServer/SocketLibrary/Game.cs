@@ -13,6 +13,7 @@ public class Game
     public Pipes GetPipes => _pipes;
     public List<Player> GetPlayers => _playerConnections;
     public readonly string ServerName = "Server";
+    private int counter = 0;
     
     public Game()
     {
@@ -31,9 +32,10 @@ public class Game
 
     public Player AddPlayer(WebSocket websocket)
     {
-        Player player = new Player("", 0, DateTime.Now, websocket);
+        Player player = new Player("player" + counter, 0, DateTime.Now, websocket);
         _playerConnections.Add(player);
         Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
+        counter++;
         return player;
     }
 
