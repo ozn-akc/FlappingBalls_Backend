@@ -55,10 +55,12 @@ public class RequestHandler
                     );
                 break;
             case RequestType.Score:
+                //Player Scored, so we increase their Score and inform all other Players
                 player.IncreaseScore();
                 game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
                 break;
             case RequestType.Highscore:
+                //Send the Player all Highscores. could also be send as only one Request
                 foreach (var scores in game.GetPlayers)
                 {
                     game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
