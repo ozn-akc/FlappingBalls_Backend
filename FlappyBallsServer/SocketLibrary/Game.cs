@@ -32,7 +32,7 @@ public class Game
 
     public Player AddPlayer(WebSocket websocket)
     {
-        Player player = new Player("player" + counter, 0, DateTime.Now, websocket);
+        Player player = new Player("player" + counter, 0,  DateTime.Now, 0, websocket);
         _playerConnections.Add(player);
         Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
         counter++;

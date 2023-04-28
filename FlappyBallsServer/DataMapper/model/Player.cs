@@ -4,12 +4,13 @@ using Newtonsoft.Json;
 public class Player
 {
 
-    public Player(string name, double height, DateTime playtime, WebSocket websocket)
+    public Player(string name, double height, DateTime playtime, int score, WebSocket websocket)
     {
         Name = name;
         Height = height;
         Playtime = playtime;
         Websocket = websocket;
+        Score = score;
     }
     public string Name { get; set; }
     public double Height { get; set; }
