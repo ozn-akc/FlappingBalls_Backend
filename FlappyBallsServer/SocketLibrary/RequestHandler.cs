@@ -1,40 +1,70 @@
-using System.Net.WebSockets;
-using DataMapper;
-using DataMapper.model;
-using static DataMapper.MetadataMapper;
-using static DataMapper.MetadataCreator;
-using static SocketLibrary.SocketAction;
+using static MetadataMapper;
 
 namespace SocketLibrary;
 
 public class RequestHandler
 {
-    private Game _game;
-
-    public RequestHandler(Game game)
+    public static void HandleData(Game game, Player player, string data)
     {
-        this._game = game;
-    }
-    public async void HandleData(WebSocket client, string data)
-    {
-        Metadata metadata = JsonToMetadata(data);
+        var metadata = JsonToMetadata(data);
         switch (metadata.RequestType)
         {
             case RequestType.Pipes:
-                //Send 
-                await Send(client, _game.GetPipesMetadata(client));
+                //Eine Pipe-Request bedeuted, dass ein Nutzer die Pipes erhalten möchte
+                //obstaclteSpawner Spawn obstacle
+                game.Send(player.Websocket, MetadataCreator.GetPipesMetadata(game.ServerName, game.GetPipes));
                 break;
             case RequestType.JumpPlayer:
-                //We Receive a Jump from a player 
                 break;
             case RequestType.JumpOther:
-                //We Receive a Jump from someone else(Opp)
                 break;
             case RequestType.DeathPlayer:
-                //We Receive a Players Death
                 break;
             case RequestType.DeathOther:
-                //We Receive an Opps Death
+                break;
+            case RequestType.Name:
+                //Eine Name-Request bedeuted, dass ein Nutzer ihren Names setzen möchte 
+                string name = (metadata.Value as string)!;
+                //Wenn der Name schon vergeben ist, wird ein neuer Name angefordert
+                if (game.PlayerNameExists(name))
+                {
+                    game.Send(player.Websocket, MetadataCreator.GetNameMetadata(game.ServerName));
+                }
+                //Ansonsten wird der name gesetzt evtl. auch ein NameAccepted als Antwort senden
+                else
+                {
+                    player.Name = name;
+                    game.Send(player.Websocket, MetadataCreator.GetNameSetMetadata(game.ServerName));
+                }
+                break;
+            case RequestType.AllPlayerData:
+                //Send Playerdata of the other players that are close to your player 
+                DateTime from = player.Playtime.Subtract(TimeSpan.FromSeconds(4));
+                DateTime to = player.Playtime.Add(TimeSpan.FromSeconds(4));
+                game.Send(
+                    player.Websocket, 
+                    MetadataCreator.GetPlayerMetadata(
+                        game.ServerName, 
+                        game.GetPlayers
+                            .Where(entry => 
+                                entry!= player && 
+                                entry.Playtime >= from && 
+                                entry.Playtime <= to
+                                ).ToList()
+                        )
+                    );
+                break;
+            case RequestType.Score:
+                //Player Scored, so we increase their Score and inform all other Players
+                player.IncreaseScore();
+                game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
+                break;
+            case RequestType.Highscore:
+                //Send the Player all Highscores. could also be send as only one Request
+                foreach (var scores in game.GetPlayers)
+                {
+                    game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
+                }
                 break;
         }
     }

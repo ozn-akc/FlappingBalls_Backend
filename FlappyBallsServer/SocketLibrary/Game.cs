@@ -1,52 +1,42 @@
 using System.Net.WebSockets;
 using System.Text;
-using DataMapper;
-using DataMapper.model;
-using static SocketLibrary.SocketAction;
+using static SocketLibrary.RequestHandler;
+using static MetadataCreator;
+using static MetadataMapper;
 
 namespace SocketLibrary;
 
 public class Game
 {
-    private readonly Dictionary<WebSocket, String> _playerConnections;
-    private readonly RequestHandler _requestHandler;
-    private const int PipesAmount = 100;
-    private readonly decimal[] _pipes;
-
+    private readonly List<Player> _playerConnections;
+    private Pipes _pipes;
+    public Pipes GetPipes => _pipes;
+    public List<Player> GetPlayers => _playerConnections;
+    public readonly string ServerName = "Server";
+    private int counter = 0;
+    
     public Game()
     {
-        _playerConnections = new Dictionary<WebSocket, string>();
-        _pipes = new decimal[PipesAmount];
-        Random random = new Random();
-        for(int i = 0; i<PipesAmount; i++)
-        {
-            _pipes[i] = Math.Round((decimal)random.NextSingle(), 2);
-        }
-        _requestHandler = new RequestHandler(this);
+        _playerConnections = new List<Player>();
+        _pipes = new Pipes();
         Task.Run(async () =>
         {
             while (true)
             {
-                var toRemove = _playerConnections
-                    .Keys
-                    .Where((connection) => 
-                        connection.State == WebSocketState.Aborted || connection.State == WebSocketState.Closed)
-                    .ToArray();
-                foreach (var key in toRemove) {
-                    _playerConnections.Remove(key);
-                }
-                await Task.Delay(2000);
+                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Aborted);
+                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Closed);
+                await Task.Delay(1000);
             }
         });
     }
 
-    public void AddPlayer(WebSocket player)
+    public Player AddPlayer(WebSocket websocket)
     {
-        _playerConnections.Add(player, "");
-        Send(player, GetPipesMetadata(player));
-        Task.Run(async () => {
-            await Listen(player);
-        });
+        Player player = new Player("player" + counter, 0,  DateTime.Now, 0, websocket);
+        _playerConnections.Add(player);
+        Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
+        counter++;
+        return player;
     }
 
     public int GetPlayerCount()
@@ -54,17 +44,17 @@ public class Game
         return _playerConnections.Count;
     }
 
-    private async Task Listen(WebSocket socket)
+    public async Task Listen(Player player)
     {
         var buffer = new byte[1024];
         string response = string.Empty;
-        while (socket.State == WebSocketState.Open)
+        while (player.Websocket.State == WebSocketState.Open)
         {
-            var result = await socket.ReceiveAsync(buffer, CancellationToken.None);
+            var result = await player.Websocket.ReceiveAsync(buffer, CancellationToken.None);
             response += Encoding.ASCII.GetString(buffer, 0, result.Count);
             if (result.EndOfMessage)
             {
-                _requestHandler.HandleData(socket, response);
+                HandleData(this, player, response);
                 response = string.Empty;
             }
         }
@@ -74,16 +64,35 @@ public class Game
     {
         foreach (var player in _playerConnections)
         {
-            if (player.Key.State == WebSocketState.Open)
+            if (player.Websocket.State == WebSocketState.Open)
             {
-                await Send(player.Key, data);
+                await Send(player.Websocket, data);
             }
         }
     }
 
-    public Metadata GetPipesMetadata(WebSocket socket)
+    public async Task SendAllButPlayer(Player original, Metadata data)
     {
-        return MetadataCreator.GetPipesMetadata("Server", _pipes);
+        foreach (var player in _playerConnections)
+        {
+            if (player.Websocket.State == WebSocketState.Open && player.Name != original.Name)
+            {
+                await Send(player.Websocket, data);
+            }
+        }
+    }
+
+    public async Task Send(WebSocket socket, Metadata metadata)
+    {
+        await socket.SendAsync(EncodeJson(MetadataToJson(metadata)),
+            WebSocketMessageType.Text, 
+            true,
+            CancellationToken.None);
+    }
+
+    public bool PlayerNameExists(string name)
+    {
+        return _playerConnections.Select(player => player.Name).Contains(name);
     }
 
 }

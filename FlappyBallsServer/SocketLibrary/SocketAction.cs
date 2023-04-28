@@ -1,10 +1,4 @@
 using System.Net.WebSockets;
-using System.Text;
-using DataMapper;
-using DataMapper.model;
-using Microsoft.AspNetCore.Http;
-
-using static DataMapper.MetadataMapper;
 
 namespace SocketLibrary;
 
@@ -17,30 +11,19 @@ public class SocketAction
         _games = new List<Game>();
     }
 
-    public async Task Connect(WebSocketManager webSocket)
+    public async Task Connect(WebSocket webSocket)
     {
-        var player = await webSocket.AcceptWebSocketAsync();
-
-        var added = false;
-        foreach (var game in _games.Where(game => game.GetPlayerCount() < 100 && !added))
+        Player player;
+        //Set game amount to 20 max
+        foreach (var game in _games.Where(game => game.GetPlayerCount() <= 10))
         {
-            game.AddPlayer(player);
-            added = true;
+            player = game.AddPlayer(webSocket);
+            await game.Listen(player);
+            return;
         }
-
-        if (!added)
-        {
-            var game = new Game();
-            game.AddPlayer(player);
-            _games.Add(game);
-        }
-    }
-
-    public static async Task Send(WebSocket socket, Metadata metadata)
-    {
-        await socket.SendAsync(EncodeJson(DataToJson(metadata)),
-            WebSocketMessageType.Text, 
-            true,
-            CancellationToken.None);
+        var newGame = new Game();
+        player = newGame.AddPlayer(webSocket);
+        _games.Add(newGame);
+        await newGame.Listen(player);
     }
 }
