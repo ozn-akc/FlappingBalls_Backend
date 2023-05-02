@@ -19,6 +19,7 @@ public class RequestHandler
             case RequestType.JumpOther:
                 break;
             case RequestType.DeathPlayer:
+                game.SendAllButPlayer(player, MetadataCreator.GetDeathPlayerMetadata(game.ServerName, player.Name));
                 break;
             case RequestType.DeathOther:
                 break;
@@ -39,18 +40,12 @@ public class RequestHandler
                 break;
             case RequestType.AllPlayerData:
                 //Send Playerdata of the other players that are close to your player 
-                DateTime from = player.Playtime.Subtract(TimeSpan.FromSeconds(4));
-                DateTime to = player.Playtime.Add(TimeSpan.FromSeconds(4));
                 game.Send(
                     player.Websocket, 
                     MetadataCreator.GetPlayerMetadata(
                         game.ServerName, 
                         game.GetPlayers
-                            .Where(entry => 
-                                entry!= player && 
-                                entry.Playtime >= from && 
-                                entry.Playtime <= to
-                                ).ToList()
+                            .Where(entry => entry!= player).ToList()
                         )
                     );
                 break;
@@ -65,6 +60,10 @@ public class RequestHandler
                 {
                     game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
                 }
+                break;
+            case RequestType.Restart:
+                player.Score = 0;
+                player.Playtime = DateTime.Now;
                 break;
         }
     }
