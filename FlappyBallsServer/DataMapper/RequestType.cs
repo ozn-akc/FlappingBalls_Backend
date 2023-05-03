@@ -9,5 +9,6 @@ public enum RequestType
     DeathOther,
     AllPlayerData,
     Score,
-    Highscore
+    Highscore,
+    Restart
 }

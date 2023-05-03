@@ -18,4 +18,9 @@ public class MetadataCreator
     {
         return new Metadata(RequestType.AllPlayerData, from, players);
     }
+
+    public static Metadata GetDeathPlayerMetadata(string from, string playerName)
+    {
+        return new Metadata(RequestType.DeathPlayer, from, playerName);
+    }
 }
