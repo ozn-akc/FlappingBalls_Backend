@@ -15,6 +15,8 @@ public class RequestHandler
                 game.Send(player.Websocket, MetadataCreator.GetPipesMetadata(game.ServerName, game.GetPipes));
                 break;
             case RequestType.JumpPlayer:
+                player.Height = (double)metadata.Value;
+                game.SendAllButPlayer(player, MetadataCreator.GetJumpPlayerMetadata(player.Name, player.Height));
                 break;
             case RequestType.JumpOther:
                 break;
