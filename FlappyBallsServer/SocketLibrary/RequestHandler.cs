@@ -55,22 +55,28 @@ public class RequestHandler
             case RequestType.Score:
                 //Player Scored, so we increase their Score and inform all other Players
                 player.IncreaseScore();
-                game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
+                sendHighscores(game);
                 break;
             case RequestType.Highscore:
-                List<Score> scores = game.GetPlayers
-                    .ConvertAll(play => new Score(play.Name, play.Score));
-                scores.Sort((a,b) => b.Value.CompareTo(a.Value));
-                //Send the Player all Highscores. could also be send as only one Request
-                game.SendAll(new Metadata(
-                    RequestType.Highscore, 
-                    game.ServerName, 
-                    scores));
+                sendHighscores(game);
                 break;
             case RequestType.Restart:
                 player.Score = 0;
                 player.Playtime = DateTime.Now;
                 break;
         }
+    }
+
+    private static void sendHighscores(Game game)
+    {
+        
+        List<Score> scores = game.GetPlayers
+            .ConvertAll(play => new Score(play.Name, play.Score));
+        scores.Sort((a,b) => b.Value.CompareTo(a.Value));
+        //Send the Player all Highscores. could also be send as only one Request
+        game.SendAll(new Metadata(
+            RequestType.Highscore, 
+            game.ServerName, 
+            scores));
     }
 }
