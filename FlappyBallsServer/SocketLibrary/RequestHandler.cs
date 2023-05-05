@@ -1,3 +1,4 @@
+using DataMapper.model;
 using static MetadataMapper;
 
 namespace SocketLibrary;
@@ -57,11 +58,14 @@ public class RequestHandler
                 game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
                 break;
             case RequestType.Highscore:
+                List<Score> scores = game.GetPlayers
+                    .ConvertAll(play => new Score(play.Name, play.Score));
+                scores.Sort((a,b) => b.Value.CompareTo(a.Value));
                 //Send the Player all Highscores. could also be send as only one Request
-                foreach (var scores in game.GetPlayers)
-                {
-                    game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
-                }
+                game.SendAll(new Metadata(
+                    RequestType.Highscore, 
+                    game.ServerName, 
+                    scores));
                 break;
             case RequestType.Restart:
                 player.Score = 0;
