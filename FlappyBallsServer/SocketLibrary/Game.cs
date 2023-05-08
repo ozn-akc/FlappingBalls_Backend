@@ -23,8 +23,8 @@ public class Game
         {
             while (true)
             {
-                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Aborted);
-                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Closed);
+                _playerConnections.RemoveAll((connection) => 
+                    connection.Websocket.State is not (WebSocketState.Open or WebSocketState.Connecting));
                 await Task.Delay(1000);
             }
         });
