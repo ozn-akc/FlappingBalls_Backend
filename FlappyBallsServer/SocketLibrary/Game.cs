@@ -35,6 +35,13 @@ public class Game
         Player player = new Player("player" + counter, 0,  DateTime.Now, 0, websocket);
         _playerConnections.Add(player);
         Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
+        Send(
+            player.Websocket, 
+            GetPlayerMetadata(
+                ServerName,
+                GetPlayers.Where(entry => entry!= player).ToList()
+                )
+        );
         counter++;
         return player;
     }
