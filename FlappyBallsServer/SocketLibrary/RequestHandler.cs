@@ -64,8 +64,7 @@ public class RequestHandler
             case RequestType.Restart:
                 player.Score = 0;
                 player.Playtime = DateTime.Now; 
-                game.Send(
-                    player.Websocket, 
+                game.SendAll(
                     MetadataCreator.GetPlayerMetadata(
                         game.ServerName, 
                         game.GetPlayers
