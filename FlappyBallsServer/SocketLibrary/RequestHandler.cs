@@ -63,14 +63,13 @@ public class RequestHandler
                 break;
             case RequestType.Restart:
                 player.Score = 0;
-                player.Playtime = DateTime.Now; 
-                game.SendAll(
+                player.Playtime = DateTime.Now;
+                game.SendAllButPlayer(
+                    player,
                     MetadataCreator.GetPlayerMetadata(
-                        game.ServerName, 
-                        game.GetPlayers
-                            .Where(entry => entry!= player).ToList()
-                    )
-                );
+                        game.ServerName,
+                        new List<Player> { player }
+                    ));
                 break;
         }
     }
