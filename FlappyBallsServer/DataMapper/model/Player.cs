@@ -11,6 +11,7 @@ public class Player
         Playtime = playtime;
         Websocket = websocket;
         Score = score;
+        Dead = true;
     }
     public string Name { get; set; }
     public double Height { get; set; }
@@ -21,4 +22,7 @@ public class Player
     
     [JsonIgnore]
     public WebSocket Websocket { get; }
+    
+    [JsonIgnore]
+    public bool Dead { get; set; }
 }

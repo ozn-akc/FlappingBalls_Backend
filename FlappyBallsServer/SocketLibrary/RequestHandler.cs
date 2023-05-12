@@ -20,12 +20,9 @@ public class RequestHandler
                 player.Height = (double)metadata.Value;
                 game.SendAllButPlayer(player, MetadataCreator.GetJumpPlayerMetadata(player.Name, player.Height));
                 break;
-            case RequestType.JumpOther:
-                break;
             case RequestType.DeathPlayer:
+                player.Dead = true;
                 game.SendAllButPlayer(player, MetadataCreator.GetDeathPlayerMetadata(game.ServerName, player.Name));
-                break;
-            case RequestType.DeathOther:
                 break;
             case RequestType.Name:
                 //Eine Name-Request bedeuted, dass ein Nutzer ihren Names setzen möchte 
@@ -49,7 +46,7 @@ public class RequestHandler
                     MetadataCreator.GetPlayerMetadata(
                         game.ServerName, 
                         game.GetPlayers
-                            .Where(entry => entry!= player).ToList()
+                            .Where(entry => entry!= player && !entry.Dead).ToList()
                         )
                     );
                 break;
@@ -63,13 +60,14 @@ public class RequestHandler
                 break;
             case RequestType.Restart:
                 player.Score = 0;
+                player.Dead = false;
                 player.Playtime = DateTime.Now;
                 game.Send(
                     player.Websocket,
                     MetadataCreator.GetPlayerMetadata(
                         game.ServerName, 
                         game.GetPlayers
-                            .Where(entry => entry!= player).ToList()
+                            .Where(entry => entry!= player && !entry.Dead).ToList()
                     )
                 );
                 game.SendAllButPlayer(

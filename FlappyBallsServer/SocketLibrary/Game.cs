@@ -39,7 +39,7 @@ public class Game
             player.Websocket, 
             GetPlayerMetadata(
                 ServerName,
-                GetPlayers.Where(entry => entry!= player).ToList()
+                GetPlayers.Where(entry => entry!= player && !entry.Dead).ToList()
                 )
         );
         counter++;
