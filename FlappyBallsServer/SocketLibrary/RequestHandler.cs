@@ -15,6 +15,7 @@ public class RequestHandler
                 //Eine Pipe-Request bedeuted, dass ein Nutzer die Pipes erhalten möchte
                 //obstaclteSpawner Spawn obstacle
                 game.Send(player.Websocket, MetadataCreator.GetPipesMetadata(game.ServerName, game.GetPipes));
+                sendHighscore(game, player.Websocket);
                 break;
             case RequestType.JumpPlayer:
                 player.Height = (double)metadata.Value;
