@@ -21,6 +21,11 @@ public class MetadataCreator
 
     public static Metadata GetDeathPlayerMetadata(string from, string playerName)
     {
-        return new Metadata(RequestType.DeathPlayer, from, playerName);
+        return new Metadata(RequestType.DeathOther, from, playerName);
+    }
+
+    public static Metadata GetJumpPlayerMetadata(string from, double playerHeight)
+    {
+        return new Metadata(RequestType.JumpOther, from, playerHeight);
     }
 }

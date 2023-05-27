@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+using DataMapper.model;
 using static MetadataMapper;
 
 namespace SocketLibrary;
@@ -13,15 +15,15 @@ public class RequestHandler
                 //Eine Pipe-Request bedeuted, dass ein Nutzer die Pipes erhalten möchte
                 //obstaclteSpawner Spawn obstacle
                 game.Send(player.Websocket, MetadataCreator.GetPipesMetadata(game.ServerName, game.GetPipes));
+                sendHighscore(game, player.Websocket);
                 break;
             case RequestType.JumpPlayer:
-                break;
-            case RequestType.JumpOther:
+                player.Height = (double)metadata.Value;
+                game.SendAllButPlayer(player, MetadataCreator.GetJumpPlayerMetadata(player.Name, player.Height));
                 break;
             case RequestType.DeathPlayer:
+                player.Dead = true;
                 game.SendAllButPlayer(player, MetadataCreator.GetDeathPlayerMetadata(game.ServerName, player.Name));
-                break;
-            case RequestType.DeathOther:
                 break;
             case RequestType.Name:
                 //Eine Name-Request bedeuted, dass ein Nutzer ihren Names setzen möchte 
@@ -45,26 +47,61 @@ public class RequestHandler
                     MetadataCreator.GetPlayerMetadata(
                         game.ServerName, 
                         game.GetPlayers
-                            .Where(entry => entry!= player).ToList()
+                            .Where(entry => entry!= player && !entry.Dead).ToList()
                         )
                     );
                 break;
             case RequestType.Score:
                 //Player Scored, so we increase their Score and inform all other Players
                 player.IncreaseScore();
-                game.SendAllButPlayer(player, new Metadata(RequestType.Highscore, player.Name, player.Score));
+                sendHighscores(game);
                 break;
             case RequestType.Highscore:
-                //Send the Player all Highscores. could also be send as only one Request
-                foreach (var scores in game.GetPlayers)
-                {
-                    game.Send(player.Websocket, new Metadata(RequestType.Highscore, scores.Name, scores.Score));
-                }
+                sendHighscore(game, player.Websocket);
                 break;
             case RequestType.Restart:
                 player.Score = 0;
+                player.Dead = false;
                 player.Playtime = DateTime.Now;
+                game.Send(
+                    player.Websocket,
+                    MetadataCreator.GetPlayerMetadata(
+                        game.ServerName, 
+                        game.GetPlayers
+                            .Where(entry => entry!= player && !entry.Dead).ToList()
+                    )
+                );
+                game.SendAllButPlayer(
+                    player,
+                    MetadataCreator.GetPlayerMetadata(
+                        game.ServerName,
+                        new List<Player> { player }
+                    ));
                 break;
         }
+    }
+
+    private static void sendHighscores(Game game)
+    {
+        List<Score> scores = game.GetPlayers
+            .ConvertAll(play => new Score(play.Name, play.Score));
+        scores.Sort((a, b) => b.Value.CompareTo(a.Value));
+        //Send the Player all Highscores. could also be send as only one Request
+        game.SendAll(new Metadata(
+            RequestType.Highscore,
+            game.ServerName,
+            scores));
+    }
+
+    private static void sendHighscore(Game game, WebSocket socket)
+    {
+        List<Score> scores = game.GetPlayers
+            .ConvertAll(play => new Score(play.Name, play.Score));
+        scores.Sort((a,b) => b.Value.CompareTo(a.Value));
+        //Send the Player all Highscores. could also be send as only one Request
+        game.Send(socket, new Metadata(
+            RequestType.Highscore, 
+            game.ServerName, 
+            scores));
     }
 }

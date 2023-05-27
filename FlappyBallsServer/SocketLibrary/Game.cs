@@ -23,8 +23,8 @@ public class Game
         {
             while (true)
             {
-                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Aborted);
-                _playerConnections.RemoveAll((connection) => connection.Websocket.State == WebSocketState.Closed);
+                _playerConnections.RemoveAll((connection) => 
+                    connection.Websocket.State is not (WebSocketState.Open or WebSocketState.Connecting));
                 await Task.Delay(1000);
             }
         });
@@ -35,6 +35,13 @@ public class Game
         Player player = new Player("player" + counter, 0,  DateTime.Now, 0, websocket);
         _playerConnections.Add(player);
         Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
+        Send(
+            player.Websocket, 
+            GetPlayerMetadata(
+                ServerName,
+                GetPlayers.Where(entry => entry!= player && !entry.Dead).ToList()
+                )
+        );
         counter++;
         return player;
     }
