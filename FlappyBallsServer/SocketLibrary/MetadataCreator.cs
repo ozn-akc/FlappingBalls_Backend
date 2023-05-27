@@ -1,5 +1,6 @@
 using SocketLibrary;
 
+//Static MetadataCreator
 public class MetadataCreator
 {
     public static Metadata GetPipesMetadata(string from, Pipes pipes)

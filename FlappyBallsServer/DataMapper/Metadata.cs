@@ -1,3 +1,4 @@
+//Metadata Class, containing the Metadata structure
 public class Metadata
 {
     public Metadata(RequestType requestType, string from, object value)

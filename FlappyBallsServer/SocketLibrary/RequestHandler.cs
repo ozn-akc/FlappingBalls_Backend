@@ -9,6 +9,7 @@ public class RequestHandler
     public static void HandleData(Game game, Player player, string data)
     {
         var metadata = JsonToMetadata(data);
+        //Switch-Case for Different possible RequestTypes
         switch (metadata.RequestType)
         {
             case RequestType.Pipes:

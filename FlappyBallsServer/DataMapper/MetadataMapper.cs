@@ -1,6 +1,7 @@
 using System.Text;
 using Newtonsoft.Json;
 
+//DataMapper
 public class MetadataMapper
 {
     public static Metadata JsonToMetadata(String requestData)
