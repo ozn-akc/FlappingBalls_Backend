@@ -4,6 +4,7 @@ using SocketLibrary;
 SocketAction socketAction = new SocketAction();
 var builder = new WebHostBuilder()
     .UseKestrel()
+    //Allowed URLS 
     .UseUrls("http://0.0.0.0:5000", "http://127.0.0.1:5293")
     .Configure(
         app =>
@@ -19,6 +20,7 @@ var builder = new WebHostBuilder()
             {
                 if (context.Request.Path == "/")
                 {
+                    //Only Allow WebsocketCalls
                     if (context.WebSockets.IsWebSocketRequest)
                     {
                         await Task.Run(async () =>
@@ -29,6 +31,7 @@ var builder = new WebHostBuilder()
                     }
                     else
                     {
+                        //OtherWise throw 400 Error
                         context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     }
                 }

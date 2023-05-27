@@ -6,9 +6,12 @@ using static MetadataMapper;
 
 namespace SocketLibrary;
 
+//Game class contains Map and Players
 public class Game
 {
+    //List of Players
     private readonly List<Player> _playerConnections;
+    //Map with 100 pipes
     private Pipes _pipes;
     public Pipes GetPipes => _pipes;
     public List<Player> GetPlayers => _playerConnections;
@@ -17,8 +20,10 @@ public class Game
     
     public Game()
     {
+        //init Map and Playerlist
         _playerConnections = new List<Player>();
         _pipes = new Pipes();
+        //Run async Task per game that deletes closed and aborted Connections
         Task.Run(async () =>
         {
             while (true)
@@ -30,11 +35,15 @@ public class Game
         });
     }
 
+    //Add Player to Game
     public Player AddPlayer(WebSocket websocket)
     {
+        //create Player with blank Data for Connection
         Player player = new Player("player" + counter, 0,  DateTime.Now, 0, websocket);
         _playerConnections.Add(player);
+        //Send Player the Pipes(MapData)
         Send(player.Websocket, GetPipesMetadata(ServerName, _pipes));
+        //Send Player all Alive Players
         Send(
             player.Websocket, 
             GetPlayerMetadata(
@@ -51,6 +60,7 @@ public class Game
         return _playerConnections.Count;
     }
 
+    //Listens to Player Websocket and calls Handlefunction
     public async Task Listen(Player player)
     {
         var buffer = new byte[1024];
@@ -61,12 +71,14 @@ public class Game
             response += Encoding.ASCII.GetString(buffer, 0, result.Count);
             if (result.EndOfMessage)
             {
+                //HandleData
                 HandleData(this, player, response);
                 response = string.Empty;
             }
         }
     }
 
+    //Send data to All Players
     public async Task SendAll(Metadata data)
     {
         foreach (var player in _playerConnections)
@@ -78,6 +90,7 @@ public class Game
         }
     }
 
+    //Send to all Players except for the original Player
     public async Task SendAllButPlayer(Player original, Metadata data)
     {
         foreach (var player in _playerConnections)
@@ -89,6 +102,7 @@ public class Game
         }
     }
 
+    //send Metadata to Socket
     public async Task Send(WebSocket socket, Metadata metadata)
     {
         await socket.SendAsync(EncodeJson(MetadataToJson(metadata)),

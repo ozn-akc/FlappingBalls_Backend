@@ -11,10 +11,11 @@ public class SocketAction
         _games = new List<Game>();
     }
 
+    //Connect To Server
     public async Task Connect(WebSocket webSocket)
     {
         Player player;
-        //Set game amount to 20 max
+        //Set game amount to 10 max if full create new Game and add Player
         foreach (var game in _games.Where(game => game.GetPlayerCount() <= 10))
         {
             player = game.AddPlayer(webSocket);

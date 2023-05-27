@@ -1,3 +1,4 @@
+//RequestTypes that need to be handled
 public enum RequestType
 {
     Pipes,
